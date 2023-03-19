@@ -1,3 +1,5 @@
+<!-- ############################################################## -->
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,13 +15,99 @@
 </head>
 
 <body style='margin: 0; overflow: hidden;'>
-    <a-scene
-        vr-mode-ui="enabled: false"
-		embedded
-        arjs='sourceType: webcam; sourceWidth:1280; sourceHeight:960; displayWidth: 1280; displayHeight: 960; debugUIEnabled: false;'>
-        
-        <a-camera gps-camera rotation-reader></a-camera>
+    <div style="position: absolute; top: 0px; left: 20px">
+        <span>Latitude: </span>
+        <span id="latitudeValue"></span>
+        <div>
+            <input name="latitudeInput" type="text" maxlength="64" id="latitudeInput" value="40.41085712290517" />
+        </div>
+    </div>
+    <div style="position: absolute; top: 60px; left: 20px">
+        <span>Longitude: </span>
+        <span id="longitudeValue"></span>
+        <div>
+            <input name="longitudeInput" type="text" maxlength="64" id="longitudeInput" value="-8.083859171819084" />
+        </div>
+        <button onclick="getValues()" >Get Values</button>
+        <p>Status:</p>
+        <p id="status">
 
-        <a-entity gltf-model="./assets/magnemite/scene.gltf" rotation="0 180 0" scale="0.15 0.15 0.15" gps-entity-place="longitude: 40.41108887708259; latitude: -8.083950092284777;" animation-mixer/>
-	</a-scene>
-</body>
+        </p>
+    </div>
+
+    <div style="position: absolute; top:100px; left: 20px">
+        <a-scene
+            vr-mode-ui="enabled: false"
+            embedded
+            arjs='sourceType: webcam; sourceWidth:1280; sourceHeight:960; displayWidth: 1280; displayHeight: 960; debugUIEnabled: false;'>
+                <a-camera gps-camera rotation-reader>
+                </a-camera>
+        </a-scene>
+    </div>
+
+
+    <script>
+        function getValues() {
+            console.log('ola');
+
+            const latitude = parseFloat(document.getElementById("latitudeInput").value);
+            const longitude = parseFloat(document.getElementById("longitudeInput").value);
+            console.log("lat: " , latitude);
+            console.log("long: " , longitude);
+
+            document.getElementById("latitudeValue").innerText = latitude.toString();
+            document.getElementById("longitudeValue").innerText = longitude.toString();
+
+            // const gpsEntity = document.getElementById('gpsEntity');
+            // gpsEntity.setAttribute('gps-entity-place', {
+            //     latitude: latitude,
+            //     longitude: longitude
+            // });
+            // gpsEntity.components["gps-entity-place"]._updatePosition();
+            // renderObject('./assets/scene.gltf', latitude, longitude);
+            renderText('ola sou texto', latitude, longitude);
+        }
+
+        function renderObject(obj, latitude, longitude) {
+            let scene = document.querySelector('a-scene');
+
+            let model = document.createElement('a-entity');
+            model.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
+            model.setAttribute('gltf-model', obj);
+            model.setAttribute('rotation', '0 180 0');
+            model.setAttribute('animation-mixer', '');
+            model.setAttribute('scale', '0.5 0.5 0.5');
+
+            model.addEventListener('loaded', () => {
+                window.dispatchEvent(new CustomEvent('gps-entity-place-loaded'))
+
+            });
+
+            scene.appendChild(model);
+        }
+
+        function renderText(text, latitude, longitude) {
+            let scene = document.querySelector('a-scene');
+
+            let model = document.createElement('a-text');
+            model.setAttribute('value', text);
+            model.setAttribute('look-at', '[gps-camera]');
+            model.setAttribute('scale', '120 120 120');
+            model.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
+
+            model.addEventListener('loaded', () => {
+                window.dispatchEvent(new CustomEvent('gps-entity-place-loaded'))
+
+                document.getElementById('status').innerText = "Loaded";
+            });
+
+            scene.appendChild(model);
+    //         <a-text
+    //     value="This content will always face you."
+    //     look-at="[gps-camera]"
+    //     scale="120 120 120"
+    //     gps-entity-place="latitude: <add-your-latitude>; longitude: <add-your-longitude>;"
+    //   ></a-text>
+        }
+    </script>
+</body> 
