@@ -1,3 +1,5 @@
+
+
 <!-- ############################################################## -->
 
 <!DOCTYPE html>
@@ -64,8 +66,33 @@
             //     longitude: longitude
             // });
             // gpsEntity.components["gps-entity-place"]._updatePosition();
-            // renderObject('./assets/scene.gltf', latitude, longitude);
+            navigator.geolocation.getCurrentPosition((position) => {
+                console.log(position.coords.latitude)
+                console.log(position.coords.longitude)
+                renderBox(position.coords.latitude, position.coords.longitude);
+            });
+
+            renderObject('./assets/scene.gltf', latitude, longitude);
             renderText('ola sou texto', latitude, longitude);
+        }
+
+        function renderBox(latitude, longitude) {
+            let scene = document.querySelector('a-scene');
+
+            let model = document.createElement('a-box');
+            model.setAttribute('material', 'color: yellow');
+            model.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
+            model.setAttribute('position', '0 1 0');
+
+            model.addEventListener('loaded', () => {
+                window.dispatchEvent(new CustomEvent('gps-entity-place-loaded'))
+
+            });
+
+            scene.appendChild(model);
+            // <a-box material="color: yellow" 
+            // gps-new-entity-place="latitude: <your-latitude>; longitude: <your-longitude>"
+            //      position="0 30 0"/>
         }
 
         function renderObject(obj, latitude, longitude) {
@@ -110,4 +137,4 @@
     //   ></a-text>
         }
     </script>
-</body> 
+</body>  
